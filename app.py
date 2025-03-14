@@ -146,14 +146,31 @@ def get_genres():
     
     return jsonify({"genres": all_genres})
 
+# Rutas especiales para las páginas principales
+@app.route('/')
+def home():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/favoritos')
+def favorites():
+    return send_from_directory(app.static_folder, 'favorites.html')
+
+@app.route('/title')
+def title():
+    return send_from_directory(app.static_folder, 'title.html')
+
+@app.route('/search')
+def search_page():
+    return send_from_directory(app.static_folder, 'search.html')
+
 # Servir archivos estáticos desde la carpeta 'public'
-@app.route('/', defaults={'path': 'index.html'})
 @app.route('/<path:path>')
 def serve_static(path):
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+    if path.startswith('api/'):
+        # Evitar conflictos con las rutas de la API
+        return jsonify({"error": "Endpoint no encontrado"}), 404
+    
+    return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Series & Películas - Tu plataforma de streaming</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-dark text-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <span class="text-danger fw-bold">Series</span>Sparkle
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/favoritos">Favoritos</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              Géneros
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark" id="genreDropdown">
+              <!-- Géneros se cargarán desde JavaScript -->
+            </ul>
+          </li>
+        </ul>
+        <div class="d-flex position-relative">
+          <input 
+            class="form-control bg-dark text-light border-secondary me-2" 
+            type="search" 
+            placeholder="Buscar..." 
+            id="searchInput"
+          >
+          <div class="search-results dropdown-menu dropdown-menu-dark w-100" id="searchResults">
+            <!-- Resultados de búsqueda se mostrarán aquí -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <!-- Carrusel de destacados -->
+    <div id="featuredCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+      <div class="carousel-inner rounded shadow" id="trendingCarousel">
+        <!-- Carrusel se cargará con JavaScript -->
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="d-flex flex-wrap gap-2 mb-4" id="filters">
+      <button class="btn btn-sm btn-danger active" data-filter="all">Todos</button>
+      <button class="btn btn-sm btn-outline-danger" data-filter="movie">Películas</button>
+      <button class="btn btn-sm btn-outline-danger" data-filter="tv">Series</button>
+      <div class="ms-auto" id="genreFilters">
+        <!-- Filtros de género se cargarán con JavaScript -->
+      </div>
+    </div>
+
+    <!-- Contenido favorito -->
+    <div id="favoritesSection" class="mb-4 d-none">
+      <h3 class="border-bottom border-danger pb-2 mb-3">Mis Favoritos</h3>
+      <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3" id="favoritesList">
+        <!-- Favoritos se cargarán con JavaScript -->
+      </div>
+    </div>
+
+    <!-- Listado principal de contenido -->
+    <h3 class="border-bottom border-danger pb-2 mb-3">Última Actualización</h3>
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3" id="contentGrid">
+      <!-- Contenido se cargará con JavaScript -->
+    </div>
+  </div>
+
+  <footer class="bg-black text-secondary mt-5 py-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5 class="text-danger">SeriesSparkle</h5>
+          <p class="small">Esta web es solo para fines educativos y no almacena ningún contenido. Todo el contenido multimedia es obtenido desde APIs públicas.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="small">© 2023 SeriesSparkle - Todos los derechos reservados</p>
+          <p class="small">Desarrollado con Flask y Bootstrap 5</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/main.js"></script>
+</body>
+</html>
