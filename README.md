@@ -1,69 +1,41 @@
-# Welcome to your Lovable project
 
-## Project info
+# Backend Flask para Películas y Series
 
-**URL**: https://lovable.dev/projects/19d1da2d-2b31-49a0-a0e2-cdf5f4407ed8
+Este es un backend simple que sirve como proxy para la API de TMDB y proporciona acceso a datos de películas y series.
 
-## How can I edit this code?
+## Configuración
 
-There are several ways of editing your application.
+1. Clona este repositorio
+2. Instala las dependencias:
+   ```
+   pip install -r requirements.txt
+   ```
+3. (Opcional) Crea un archivo `.env` con tu clave API de TMDB:
+   ```
+   TMDB_API_KEY=tu_clave_api_de_tmdb
+   ```
+   Si no proporcionas una clave API, se usará una clave pública para fines de demostración.
 
-**Use Lovable**
+## Ejecución
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/19d1da2d-2b31-49a0-a0e2-cdf5f4407ed8) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+Para ejecutar el servidor de desarrollo:
+```
+python app.py
 ```
 
-**Edit a file directly in GitHub**
+El servidor estará disponible en http://localhost:5000
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Endpoints API disponibles
 
-**Use GitHub Codespaces**
+- `/api/trending` - Obtiene contenido en tendencia
+- `/api/search?q={query}` - Busca películas y series
+- `/api/details?type={type}&id={id}` - Obtiene detalles de una película o serie
+- `/api/episodes?series_id={id}&season={season}` - Obtiene episodios de una temporada
+- `/api/recommendations?type={type}&id={id}` - Obtiene recomendaciones
+- `/api/videos?type={type}&id={id}` - Obtiene videos relacionados
+- `/api/genres` - Obtiene todos los géneros disponibles
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Estructura de carpetas
 
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/19d1da2d-2b31-49a0-a0e2-cdf5f4407ed8) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+El servidor sirve archivos estáticos desde la carpeta `public`. 
+Para el frontend, coloca tus archivos HTML, CSS y JavaScript en esta carpeta.
