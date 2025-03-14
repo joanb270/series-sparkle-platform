@@ -1,21 +1,7 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Calendar, Clock, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import ContentCard from "@/components/ContentCard";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from "@/components/ui/carousel";
-import FavoriteButton from "@/components/FavoriteButton";
-import VideoPlayer from "@/components/VideoPlayer";
-import SeasonEpisodes from "@/components/SeasonEpisodes";
 import { 
   fetchContentDetails, 
   fetchSimilarContent, 
@@ -23,11 +9,17 @@ import {
   fetchRecommendedContent 
 } from "@/lib/api";
 import { Content, Video } from "@/types";
+import ContentHeader from "@/components/title/ContentHeader";
+import ContentDetails from "@/components/title/ContentDetails";
+import MediaPlayer from "@/components/title/MediaPlayer";
+import RelatedContent from "@/components/title/RelatedContent";
+import SeasonEpisodes from "@/components/SeasonEpisodes";
+import ContentLoadingSkeleton from "@/components/title/ContentLoadingSkeleton";
+import NotFoundContent from "@/components/title/NotFoundContent";
 
 const TitlePage = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const type = searchParams.get("type") || "movie";
   
@@ -36,7 +28,6 @@ const TitlePage = () => {
   const [recommendedContent, setRecommendedContent] = useState<Content[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,37 +62,11 @@ const TitlePage = () => {
   }, [id, type, toast]);
 
   if (isLoading) {
-    return (
-      <div className="main-container">
-        <div className="flex items-center mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <Skeleton className="h-8 w-64 ml-2" />
-        </div>
-        <div className="flex flex-col md:flex-row gap-6">
-          <Skeleton className="w-full md:w-80 h-[400px]" />
-          <div className="flex-grow space-y-4">
-            <Skeleton className="h-8 w-full max-w-md" />
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-10 w-32" />
-          </div>
-        </div>
-      </div>
-    );
+    return <ContentLoadingSkeleton />;
   }
 
   if (!content) {
-    return (
-      <div className="main-container">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold mb-2">Contenido no encontrado</h2>
-          <p className="text-muted-foreground mb-4">No pudimos encontrar el contenido que estás buscando.</p>
-          <Button onClick={() => navigate("/")}>Volver al inicio</Button>
-        </div>
-      </div>
-    );
+    return <NotFoundContent />;
   }
 
   const title = content.title || content.name;
@@ -126,52 +91,16 @@ const TitlePage = () => {
 
   return (
     <>
-      {/* Backdrop header */}
-      <div 
-        className="relative h-[300px] md:h-[400px] bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(26,31,44,1)), url(${backdropPath})` 
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        <div className="main-container relative h-full flex items-end pb-8">
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            <img 
-              src={posterPath} 
-              alt={title}
-              className="hidden md:block w-48 h-72 object-cover rounded-md shadow-lg -mb-24 relative z-10" 
-            />
-            <div className="flex-grow">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="mb-4 bg-black/20 hover:bg-black/40"
-                onClick={() => navigate(-1)}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <h1 className="text-3xl md:text-4xl font-bold">{title}</h1>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-                {releaseYear && (
-                  <span className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {releaseYear}
-                  </span>
-                )}
-                <span className="badge-primary">{contentType}</span>
-                <span className="flex items-center text-sm">
-                  <Star className="h-4 w-4 text-yellow-400 mr-1" fill="currentColor" />
-                  {content.vote_average ? (Math.round(content.vote_average * 10) / 10).toFixed(1) : "N/A"}
-                </span>
-                <span className="flex items-center text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4 mr-1" />
-                  {runtime}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ContentHeader 
+        title={title}
+        backdropPath={backdropPath}
+        posterPath={posterPath}
+        releaseYear={releaseYear}
+        contentType={contentType}
+        runtime={runtime}
+        voteAverage={content.vote_average}
+        isLoading={isLoading}
+      />
 
       <div className="main-container">
         <div className="flex flex-col md:flex-row gap-6 mt-8 md:mt-0">
@@ -182,77 +111,16 @@ const TitlePage = () => {
           />
         
           <div className="md:ml-48 flex-grow">
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Sinopsis</h2>
-                <FavoriteButton 
-                  contentId={content.id} 
-                  contentType={type}
-                  contentTitle={title}
-                  posterPath={content.poster_path}
-                />
-              </div>
-              <p className="text-muted-foreground">
-                {content.overview || "No hay sinopsis disponible para este contenido."}
-              </p>
-            </div>
+            <ContentDetails 
+              id={content.id}
+              type={type}
+              title={title}
+              overview={content.overview}
+              posterPath={content.poster_path}
+              genres={content.genres}
+            />
 
-            {content.genres && content.genres.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">Géneros</h2>
-                <div className="flex flex-wrap gap-2">
-                  {content.genres.map((genre: any) => (
-                    <Link
-                      key={genre.id}
-                      to={`/?genre=${genre.id}`}
-                      className="badge-primary"
-                    >
-                      {genre.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {(trailer || showVideoPlayer) && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-2">Reproducir</h2>
-                {showVideoPlayer ? (
-                  <div className="mb-4">
-                    <VideoPlayer />
-                    <Button 
-                      variant="ghost" 
-                      className="mt-2" 
-                      onClick={() => setShowVideoPlayer(false)}
-                    >
-                      Cerrar reproductor
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button 
-                      className="gap-2" 
-                      onClick={() => setShowVideoPlayer(true)}
-                    >
-                      <Play className="h-4 w-4" fill="currentColor" />
-                      Ver ahora
-                    </Button>
-                    {trailer && (
-                      <a 
-                        href={`https://www.youtube.com/watch?v=${trailer.key}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="outline" className="gap-2">
-                          <Play className="h-4 w-4" />
-                          Ver Trailer
-                        </Button>
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+            <MediaPlayer trailer={trailer} />
 
             {/* For TV shows, display seasons and episodes */}
             {type === "tv" && id && (
@@ -261,39 +129,15 @@ const TitlePage = () => {
               </div>
             )}
 
-            {recommendedContent.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-xl font-semibold mb-4">Recomendaciones</h2>
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {recommendedContent.map((item) => (
-                      <CarouselItem key={item.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
-                        <ContentCard content={item} />
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
-              </div>
-            )}
+            <RelatedContent 
+              title="Recomendaciones" 
+              content={recommendedContent} 
+            />
 
-            {similarContent.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-xl font-semibold mb-4">Contenido Similar</h2>
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {similarContent.map((item) => (
-                      <CarouselItem key={item.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
-                        <ContentCard content={item} />
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
-              </div>
-            )}
+            <RelatedContent 
+              title="Contenido Similar" 
+              content={similarContent} 
+            />
           </div>
         </div>
       </div>
