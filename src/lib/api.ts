@@ -70,3 +70,20 @@ export const fetchContentVideos = async (id: string, type: string): Promise<any[
   const data = await fetchFromTMDB(`/${type}/${id}/videos`);
   return data.results;
 };
+
+export const fetchRecommendedContent = async (id: string, type: string): Promise<Content[]> => {
+  const data = await fetchFromTMDB(`/${type}/${id}/recommendations`);
+  return data.results.map((item: any) => ({
+    ...item,
+    media_type: item.media_type || type
+  }));
+};
+
+export const fetchSeasonDetails = async (tvId: string, seasonNumber: number): Promise<any> => {
+  return fetchFromTMDB(`/tv/${tvId}/season/${seasonNumber}`);
+};
+
+export const fetchTvSeasons = async (tvId: string): Promise<any> => {
+  const data = await fetchFromTMDB(`/tv/${tvId}`);
+  return data.seasons || [];
+};

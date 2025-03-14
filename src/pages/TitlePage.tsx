@@ -6,7 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ContentCard from "@/components/ContentCard";
 import { useToast } from "@/components/ui/use-toast";
-import { fetchContentDetails, fetchSimilarContent, fetchContentVideos } from "@/lib/api";
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem, 
+  CarouselNext, 
+  CarouselPrevious 
+} from "@/components/ui/carousel";
+import FavoriteButton from "@/components/FavoriteButton";
+import VideoPlayer from "@/components/VideoPlayer";
+import SeasonEpisodes from "@/components/SeasonEpisodes";
+import { 
+  fetchContentDetails, 
+  fetchSimilarContent, 
+  fetchContentVideos,
+  fetchRecommendedContent 
+} from "@/lib/api";
 import { Content, Video } from "@/types";
 
 const TitlePage = () => {
@@ -18,8 +33,10 @@ const TitlePage = () => {
   
   const [content, setContent] = useState<any>(null);
   const [similarContent, setSimilarContent] = useState<Content[]>([]);
+  const [recommendedContent, setRecommendedContent] = useState<Content[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,15 +44,17 @@ const TitlePage = () => {
       
       try {
         setIsLoading(true);
-        const [contentData, similarData, videosData] = await Promise.all([
+        const [contentData, similarData, videosData, recommendationsData] = await Promise.all([
           fetchContentDetails(id, type),
           fetchSimilarContent(id, type),
           fetchContentVideos(id, type),
+          fetchRecommendedContent(id, type)
         ]);
         
         setContent(contentData);
         setSimilarContent(similarData);
         setVideos(videosData);
+        setRecommendedContent(recommendationsData);
       } catch (error) {
         console.error("Error fetching content details:", error);
         toast({
@@ -164,7 +183,15 @@ const TitlePage = () => {
         
           <div className="md:ml-48 flex-grow">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">Sinopsis</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Sinopsis</h2>
+                <FavoriteButton 
+                  contentId={content.id} 
+                  contentType={type}
+                  contentTitle={title}
+                  posterPath={content.poster_path}
+                />
+              </div>
               <p className="text-muted-foreground">
                 {content.overview || "No hay sinopsis disponible para este contenido."}
               </p>
@@ -187,30 +214,84 @@ const TitlePage = () => {
               </div>
             )}
 
-            {trailer && (
+            {(trailer || showVideoPlayer) && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-2">Trailer</h2>
-                <a 
-                  href={`https://www.youtube.com/watch?v=${trailer.key}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button className="gap-2">
-                    <Play className="h-4 w-4" fill="currentColor" />
-                    Ver Trailer
-                  </Button>
-                </a>
+                <h2 className="text-xl font-semibold mb-2">Reproducir</h2>
+                {showVideoPlayer ? (
+                  <div className="mb-4">
+                    <VideoPlayer />
+                    <Button 
+                      variant="ghost" 
+                      className="mt-2" 
+                      onClick={() => setShowVideoPlayer(false)}
+                    >
+                      Cerrar reproductor
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button 
+                      className="gap-2" 
+                      onClick={() => setShowVideoPlayer(true)}
+                    >
+                      <Play className="h-4 w-4" fill="currentColor" />
+                      Ver ahora
+                    </Button>
+                    {trailer && (
+                      <a 
+                        href={`https://www.youtube.com/watch?v=${trailer.key}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="outline" className="gap-2">
+                          <Play className="h-4 w-4" />
+                          Ver Trailer
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* For TV shows, display seasons and episodes */}
+            {type === "tv" && id && (
+              <div className="mb-8">
+                <SeasonEpisodes tvId={id} />
+              </div>
+            )}
+
+            {recommendedContent.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-xl font-semibold mb-4">Recomendaciones</h2>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {recommendedContent.map((item) => (
+                      <CarouselItem key={item.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
+                        <ContentCard content={item} />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </div>
             )}
 
             {similarContent.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-xl font-semibold mb-4">Contenido Similar</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {similarContent.slice(0, 4).map((item) => (
-                    <ContentCard key={item.id} content={item} />
-                  ))}
-                </div>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {similarContent.map((item) => (
+                      <CarouselItem key={item.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
+                        <ContentCard content={item} />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </div>
             )}
           </div>

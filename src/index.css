@@ -92,3 +92,46 @@
 .main-container {
   @apply container mx-auto px-4 py-6;
 }
+
+/* Episode list styling */
+.episode-list {
+  @apply divide-y divide-border/30;
+}
+
+.episode-item {
+  @apply flex items-center p-3 hover:bg-accent/10 cursor-pointer transition-colors;
+}
+
+.episode-thumbnail {
+  @apply w-24 h-16 object-cover rounded overflow-hidden relative flex-shrink-0;
+}
+
+.episode-play-overlay {
+  @apply absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity;
+}
+
+/* Video player styling */
+.video-container {
+  @apply relative w-full bg-black rounded-md overflow-hidden shadow-lg;
+}
+
+.video-container video {
+  @apply w-full aspect-video;
+}
+
+/* Favorites button styling */
+.favorite-btn {
+  @apply flex items-center gap-2 text-sm font-medium;
+}
+
+.favorite-btn.active {
+  @apply text-primary;
+}
+
+.favorite-btn svg {
+  @apply w-4 h-4;
+}
+
+.favorite-btn.active svg {
+  @apply fill-primary;
+}
