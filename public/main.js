@@ -14,6 +14,9 @@ const trendingCarousel = document.getElementById('trendingCarousel');
 const genreDropdown = document.getElementById('genreDropdown');
 const filters = document.getElementById('filters');
 const genreFilters = document.getElementById('genreFilters');
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
+const currentPageSpan = document.getElementById('currentPage');
 
 // Estado de la aplicación
 let allContent = [];
@@ -22,6 +25,8 @@ let activeFilters = {
   type: 'all',
   genres: []
 };
+let currentPage = 1;
+const itemsPerPage = 10;
 
 // Funciones utilitarias
 const formatDate = (dateString) => {
@@ -350,6 +355,60 @@ const setupSearch = () => {
   });
 };
 
+// Funciones de paginación
+const loadTrendingContent = async (page = 1) => {
+  try {
+    // Actualizar el estado de la paginación
+    currentPage = page;
+    currentPageSpan.textContent = currentPage;
+    
+    // Deshabilitar botón "Anterior" si estamos en la primera página
+    if (currentPage === 1) {
+      prevPageBtn.disabled = true;
+      prevPageBtn.classList.add('disabled');
+    } else {
+      prevPageBtn.disabled = false;
+      prevPageBtn.classList.remove('disabled');
+    }
+    
+    // Cargar datos de la API con el parámetro de página
+    const trendingData = await fetchAPI('/trending', { page: currentPage.toString() });
+    
+    if (trendingData.results && trendingData.results.length > 0) {
+      // Limitar a itemsPerPage elementos
+      const limitedResults = trendingData.results.slice(0, itemsPerPage);
+      
+      // Actualizar el contenido y el carrusel
+      allContent = limitedResults;
+      renderTrendingCarousel(limitedResults);
+      renderContentGrid(); // Esto respetará los filtros activos
+    }
+  } catch (error) {
+    console.error('Error loading trending content:', error);
+  }
+};
+
+// Inicialización de paginación
+const initPagination = () => {
+  if (!prevPageBtn || !nextPageBtn) return;
+  
+  // Botón "Anterior"
+  prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      loadTrendingContent(currentPage - 1);
+    }
+  });
+  
+  // Botón "Siguiente"
+  nextPageBtn.addEventListener('click', () => {
+    loadTrendingContent(currentPage + 1);
+  });
+  
+  // Inicialmente deshabilitar "Anterior" en la primera página
+  prevPageBtn.disabled = true;
+  prevPageBtn.classList.add('disabled');
+};
+
 // Inicialización
 const initFilters = () => {
   if (!filters) return;
@@ -376,13 +435,11 @@ const initHomePage = async () => {
   // Cargar géneros
   await renderGenres();
   
-  // Cargar contenido trending
-  const trendingData = await fetchAPI('/trending');
-  if (trendingData.results && trendingData.results.length > 0) {
-    renderTrendingCarousel(trendingData.results);
-    allContent = trendingData.results;
-    renderContentGrid();
-  }
+  // Inicializar paginación
+  initPagination();
+  
+  // Cargar contenido trending (primera página)
+  await loadTrendingContent(1);
   
   // Configurar búsqueda
   setupSearch();
