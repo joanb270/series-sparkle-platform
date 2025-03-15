@@ -10,7 +10,7 @@ def fetch_from_tmdb(endpoint, params=None):
     
     # Parámetros por defecto
     default_params = {
-        "api_key": 3dca2956b66e0413c972243c868dc42a ,
+        "api_key": TMDB_API_KEY,
         "language": "es-ES"  # Español por defecto
     }
     
