@@ -83,19 +83,23 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/main.js"></script>
-  <script>
+  <script type="module">
+    import { renderGenres } from '/js/filters.js';
+    import { setupSearch } from '/js/search.js';
+    import { getImageUrl } from '/js/api.js';
+    import { getFavorites } from '/js/favorites.js';
+    
     document.addEventListener('DOMContentLoaded', () => {
       const favoritesList = document.getElementById('favoritesList');
       const noFavorites = document.getElementById('noFavorites');
       
-      // Cargar géneros y configurar búsqueda desde main.js
-      if (typeof renderGenres === 'function') renderGenres();
-      if (typeof setupSearch === 'function') setupSearch();
+      // Cargar géneros y configurar búsqueda
+      renderGenres();
+      setupSearch();
       
       // Renderizar favoritos
       function renderFavoritesPage() {
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const favorites = getFavorites();
         
         if (favorites.length > 0) {
           favoritesList.innerHTML = favorites.map(item => {
@@ -129,34 +133,17 @@
               const id = parseInt(btn.dataset.id);
               const type = btn.dataset.type;
               
-              if (typeof removeFromFavorites === 'function') {
-                removeFromFavorites(id, type);
+              // Importar dinámicamente para usar removeFromFavorites
+              import('./js/favorites.js').then(module => {
+                module.removeFromFavorites(id, type);
                 renderFavoritesPage(); // Actualizar la página
-              } else {
-                // Fallback si la función no está disponible
-                const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-                const updatedFavorites = favorites.filter(
-                  item => !(item.id === id && item.media_type === type)
-                );
-                localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-                renderFavoritesPage();
-              }
+              });
             });
           });
         } else {
           favoritesList.classList.add('d-none');
           noFavorites.classList.remove('d-none');
         }
-      }
-      
-      // Función para obtener URL de imagen (fallback si no está en main.js)
-      function getImageUrl(path, size = 'w500') {
-        if (typeof window.getImageUrl === 'function') {
-          return window.getImageUrl(path, size);
-        }
-        
-        if (!path) return '/placeholder.svg';
-        return `https://image.tmdb.org/t/p/${size}${path}`;
       }
       
       renderFavoritesPage();
