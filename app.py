@@ -1,13 +1,30 @@
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, g
 import requests
 import os
 from dotenv import load_dotenv
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
+from models import db, User, Comment
 
 # Cargar variables de entorno
 load_dotenv()
 
 app = Flask(__name__, static_folder='public')
+
+# Configuración de la base de datos
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///seriessparkle.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'clave-secreta-desarrollo')
+app.config['JWT_EXPIRATION_DELTA'] = timedelta(days=7)
+
+# Inicializar la base de datos
+db.init_app(app)
+
+# Crear tablas en primer inicio
+with app.app_context():
+    db.create_all()
 
 # Configuración de TMDB
 TMDB_API_KEY = os.getenv('TMDB_API_KEY', 'c7f9f5bd40f5f95ebf63df8efcde3c46')  # Fallback a la clave pública para demo
@@ -35,116 +52,182 @@ def fetch_from_tmdb(endpoint, params=None):
         print(f"Error en la petición a TMDB: {e}")
         return {"error": "Error al comunicarse con el servicio de películas", "details": str(e)}
 
+# Decorador para rutas que requieren autenticación
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        auth_header = request.headers.get('Authorization')
+        
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split('Bearer ')[1]
+        
+        if not token:
+            return jsonify({'error': 'Token no proporcionado'}), 401
+        
+        try:
+            payload = jwt.decode(
+                token, 
+                app.config['SECRET_KEY'], 
+                algorithms=['HS256']
+            )
+            g.user_id = payload.get('user_id')
+            g.username = payload.get('username')
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expirado'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Token inválido'}), 401
+            
+        return f(*args, **kwargs)
+    return decorated
+
 # Endpoint para contenido en tendencia
 @app.route('/api/trending')
 def get_trending():
-    data = fetch_from_tmdb("/trending/all/week")
-    return jsonify(data)
+    # ... keep existing code (tendencia endpoint)
 
 # Endpoint para búsqueda
 @app.route('/api/search')
 def search():
-    query = request.args.get('q', '')
-    if not query:
-        return jsonify({"error": "Se requiere un término de búsqueda"}), 400
-    
-    data = fetch_from_tmdb("/search/multi", {"query": query})
-    if "error" in data:
-        return jsonify(data), 500
-    
-    # Filtrar solo películas y series
-    if "results" in data:
-        data["results"] = [item for item in data["results"] 
-                          if item.get("media_type") in ["movie", "tv"]]
-    
-    return jsonify(data)
+    # ... keep existing code (búsqueda endpoint)
 
 # Endpoint para detalles de película o serie
 @app.route('/api/details')
 def get_details():
-    content_type = request.args.get('type')
-    content_id = request.args.get('id')
-    
-    if not content_type or not content_id:
-        return jsonify({"error": "Se requieren los parámetros 'type' e 'id'"}), 400
-    
-    if content_type not in ['movie', 'tv']:
-        return jsonify({"error": "El tipo debe ser 'movie' o 'tv'"}), 400
-    
-    data = fetch_from_tmdb(f"/{content_type}/{content_id}")
-    return jsonify(data)
+    # ... keep existing code (detalles endpoint)
 
 # Endpoint para episodios de una temporada
 @app.route('/api/episodes')
 def get_episodes():
-    series_id = request.args.get('series_id')
-    season = request.args.get('season', '1')
-    
-    if not series_id:
-        return jsonify({"error": "Se requiere el parámetro 'series_id'"}), 400
-    
-    data = fetch_from_tmdb(f"/tv/{series_id}/season/{season}")
-    return jsonify(data)
+    # ... keep existing code (episodios endpoint)
 
 # Endpoint para recomendaciones
 @app.route('/api/recommendations')
 def get_recommendations():
-    content_type = request.args.get('type')
-    content_id = request.args.get('id')
-    
-    if not content_type or not content_id:
-        return jsonify({"error": "Se requieren los parámetros 'type' e 'id'"}), 400
-    
-    if content_type not in ['movie', 'tv']:
-        return jsonify({"error": "El tipo debe ser 'movie' o 'tv'"}), 400
-    
-    data = fetch_from_tmdb(f"/{content_type}/{content_id}/recommendations")
-    
-    # Asegurarse de que todos los resultados tengan media_type
-    if "results" in data:
-        for item in data["results"]:
-            if "media_type" not in item:
-                item["media_type"] = content_type
-    
-    return jsonify(data)
+    # ... keep existing code (recomendaciones endpoint)
 
 # Endpoint para videos (trailers, etc.)
 @app.route('/api/videos')
 def get_videos():
-    content_type = request.args.get('type')
-    content_id = request.args.get('id')
-    
-    if not content_type or not content_id:
-        return jsonify({"error": "Se requieren los parámetros 'type' e 'id'"}), 400
-    
-    if content_type not in ['movie', 'tv']:
-        return jsonify({"error": "El tipo debe ser 'movie' o 'tv'"}), 400
-    
-    data = fetch_from_tmdb(f"/{content_type}/{content_id}/videos")
-    return jsonify(data)
+    # ... keep existing code (videos endpoint)
 
 # Endpoint para géneros
 @app.route('/api/genres')
 def get_genres():
-    # Obtener géneros de películas y series
-    movie_genres = fetch_from_tmdb("/genre/movie/list")
-    tv_genres = fetch_from_tmdb("/genre/tv/list")
+    # ... keep existing code (géneros endpoint)
+
+# Endpoint para comentarios - GET
+@app.route('/api/comments', methods=['GET'])
+def get_comments():
+    content_id = request.args.get('id')
+    content_type = request.args.get('type')
     
-    # Combinar y eliminar duplicados
-    all_genres = []
-    genre_ids = set()
+    if not content_id or not content_type:
+        return jsonify({"error": "Se requieren los parámetros 'id' y 'type'"}), 400
     
-    if "genres" in movie_genres:
-        for genre in movie_genres["genres"]:
-            all_genres.append(genre)
-            genre_ids.add(genre["id"])
+    # Obtener comentarios de la base de datos
+    comments = Comment.query.filter_by(
+        content_id=content_id,
+        type=content_type
+    ).order_by(Comment.created_at.desc()).all()
     
-    if "genres" in tv_genres:
-        for genre in tv_genres["genres"]:
-            if genre["id"] not in genre_ids:
-                all_genres.append(genre)
+    # Convertir a diccionarios
+    comments_data = [comment.to_dict() for comment in comments]
     
-    return jsonify({"genres": all_genres})
+    return jsonify({"comments": comments_data})
+
+# Endpoint para comentarios - POST
+@app.route('/api/comments', methods=['POST'])
+@token_required
+def add_comment():
+    data = request.json
+    
+    if not data or not all(k in data for k in ('content_id', 'type', 'text')):
+        return jsonify({"error": "Faltan datos requeridos"}), 400
+    
+    if not data['text'].strip():
+        return jsonify({"error": "El comentario no puede estar vacío"}), 400
+    
+    # Crear nuevo comentario
+    new_comment = Comment(
+        text=data['text'].strip(),
+        user_id=g.user_id,
+        content_id=data['content_id'],
+        type=data['type']
+    )
+    
+    # Guardar en la base de datos
+    db.session.add(new_comment)
+    db.session.commit()
+    
+    return jsonify({"success": True, "comment": new_comment.to_dict()})
+
+# Endpoint para registro de usuarios
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    data = request.json
+    
+    if not data or not all(k in data for k in ('username', 'email', 'password')):
+        return jsonify({"error": "Faltan datos requeridos"}), 400
+    
+    # Verificar si el usuario o email ya existen
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({"error": "Nombre de usuario ya registrado"}), 400
+        
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({"error": "Email ya registrado"}), 400
+    
+    # Crear nuevo usuario
+    new_user = User(
+        username=data['username'],
+        email=data['email']
+    )
+    new_user.set_password(data['password'])
+    
+    # Guardar en la base de datos
+    db.session.add(new_user)
+    db.session.commit()
+    
+    # Generar token
+    token = new_user.generate_token()
+    
+    return jsonify({
+        "success": True,
+        "user": {
+            "id": new_user.id,
+            "username": new_user.username,
+            "email": new_user.email
+        },
+        "token": token
+    })
+
+# Endpoint para login
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.json
+    
+    if not data or not all(k in data for k in ('username', 'password')):
+        return jsonify({"error": "Faltan datos requeridos"}), 400
+    
+    # Buscar usuario por nombre de usuario
+    user = User.query.filter_by(username=data['username']).first()
+    
+    # Verificar si el usuario existe y la contraseña es correcta
+    if not user or not user.check_password(data['password']):
+        return jsonify({"error": "Credenciales inválidas"}), 401
+    
+    # Generar token
+    token = user.generate_token()
+    
+    return jsonify({
+        "success": True,
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        },
+        "token": token
+    })
 
 # Rutas especiales para las páginas principales
 @app.route('/')
