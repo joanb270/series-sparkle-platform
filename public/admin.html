@@ -178,261 +178,179 @@
             </div>
 
             <!-- Contenido principal -->
-            <div class="col-md-9 col-lg-10 admin-content">
-                <!-- Alertas -->
-                <div id="alertContainer"></div>
-                
-                <!-- Contenido de las pestañas -->
+            <div class="col-md-9 col-lg-10 admin-content bg-dark">
                 <div class="tab-content">
                     <!-- Dashboard -->
                     <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-                        <h1 class="mb-4">Dashboard</h1>
+                        <h2 class="mb-4">Dashboard</h2>
                         
                         <!-- Tarjetas de estadísticas -->
                         <div class="row mb-4">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4 mb-4 mb-md-0">
                                 <div class="stats-card">
                                     <div class="icon">
-                                        <i class="bi bi-people-fill text-white fs-3"></i>
+                                        <i class="bi bi-people fs-4 text-white"></i>
                                     </div>
                                     <div class="number" id="usersCount">0</div>
-                                    <div class="text">Usuarios</div>
+                                    <div class="text">Usuarios registrados</div>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4 mb-4 mb-md-0">
                                 <div class="stats-card">
                                     <div class="icon">
-                                        <i class="bi bi-chat-left-text-fill text-white fs-3"></i>
+                                        <i class="bi bi-chat-left-text fs-4 text-white"></i>
                                     </div>
                                     <div class="number" id="commentsCount">0</div>
                                     <div class="text">Comentarios</div>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4">
                                 <div class="stats-card">
                                     <div class="icon">
-                                        <i class="bi bi-film text-white fs-3"></i>
+                                        <i class="bi bi-film fs-4 text-white"></i>
                                     </div>
                                     <div class="number" id="contentCount">0</div>
-                                    <div class="text">Contenido</div>
+                                    <div class="text">Contenido manual</div>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Gráficas -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card bg-dark text-white">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Distribución de Usuarios</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="usersPieChart" height="250"></canvas>
-                                    </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                <div class="chart-container">
+                                    <h5 class="mb-3 text-light">Distribución de usuarios</h5>
+                                    <canvas id="usersPieChart"></canvas>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card bg-dark text-white">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Comentarios por Día</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="commentsLineChart" height="250"></canvas>
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <h5 class="mb-3 text-light">Comentarios recientes (últimos 7 días)</h5>
+                                    <canvas id="commentsLineChart"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Usuarios -->
                     <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h1>Gestión de Usuarios</h1>
-                            <button class="btn btn-danger">
-                                <i class="bi bi-person-plus-fill"></i> Nuevo Usuario
-                            </button>
-                        </div>
+                        <h2 class="mb-4">Gestión de usuarios</h2>
                         
-                        <div class="card bg-dark text-white mb-4">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-dark table-hover admin-table" id="usersTable">
-                                        <thead>
-                                            <tr>
-                                                <th width="60">#</th>
-                                                <th>Usuario</th>
-                                                <th>Email</th>
-                                                <th>Rol</th>
-                                                <th>Fecha de creación</th>
-                                                <th width="150">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="6" class="text-center">
-                                                    <div class="spinner-border text-danger" role="status">
-                                                        <span class="visually-hidden">Cargando...</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <div class="table-responsive admin-table">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Usuario</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Fecha de registro</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTable">
+                                    <!-- Usuarios se cargarán desde JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    
+
                     <!-- Comentarios -->
                     <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
-                        <h1 class="mb-4">Gestión de Comentarios</h1>
+                        <h2 class="mb-4">Gestión de comentarios</h2>
                         
-                        <div class="card bg-dark text-white mb-4">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-dark table-hover admin-table" id="commentsTable">
-                                        <thead>
-                                            <tr>
-                                                <th width="60">#</th>
-                                                <th>Usuario</th>
-                                                <th>Contenido</th>
-                                                <th>Tipo</th>
-                                                <th>Comentario</th>
-                                                <th>Fecha</th>
-                                                <th width="100">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="7" class="text-center">
-                                                    <div class="spinner-border text-danger" role="status">
-                                                        <span class="visually-hidden">Cargando...</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <div class="table-responsive admin-table">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Usuario</th>
+                                        <th>ID Contenido</th>
+                                        <th>Tipo</th>
+                                        <th>Comentario</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commentsTable">
+                                    <!-- Comentarios se cargarán desde JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    
+
                     <!-- Contenido -->
                     <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h1>Gestión de Contenido</h1>
-                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#contentModal" id="newContentBtn">
-                                <i class="bi bi-plus-lg"></i> Agregar Contenido
-                            </button>
+                        <h2 class="mb-4">Gestión de contenido manual</h2>
+                        
+                        <!-- Formulario para agregar contenido -->
+                        <div class="card bg-dark border-secondary mb-4">
+                            <div class="card-header bg-dark border-secondary">
+                                <h5 class="mb-0">Agregar nuevo contenido</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="contentForm">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <label for="contentTitle" class="form-label">Título</label>
+                                            <input type="text" class="form-control" id="contentTitle" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="contentType" class="form-label">Tipo</label>
+                                            <select class="form-select" id="contentType" required>
+                                                <option value="movie">Película</option>
+                                                <option value="tv">Serie</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="contentTmdbId" class="form-label">ID de TMDB</label>
+                                            <input type="text" class="form-control" id="contentTmdbId" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="contentVideoUrl" class="form-label">URL del video (opcional)</label>
+                                            <input type="url" class="form-control" id="contentVideoUrl">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-plus-circle me-2"></i>Agregar contenido
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                         
-                        <div class="card bg-dark text-white mb-4">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-dark table-hover admin-table" id="contentTable">
-                                        <thead>
-                                            <tr>
-                                                <th width="60">#</th>
-                                                <th>Título</th>
-                                                <th>Tipo</th>
-                                                <th>ID TMDB</th>
-                                                <th>Video URL</th>
-                                                <th>Fecha</th>
-                                                <th width="150">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="7" class="text-center">
-                                                    <div class="spinner-border text-danger" role="status">
-                                                        <span class="visually-hidden">Cargando...</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <!-- Tabla de contenido -->
+                        <div class="table-responsive admin-table">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Título</th>
+                                        <th>Tipo</th>
+                                        <th>TMDB ID</th>
+                                        <th>URL de video</th>
+                                        <th>Fecha de adición</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contentTable">
+                                    <!-- Contenido se cargará desde JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Modal de contenido -->
-    <div class="modal fade" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title" id="contentModalLabel">Agregar Contenido</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="contentForm">
-                        <input type="hidden" id="contentId">
-                        <div class="mb-3">
-                            <label for="contentTitle" class="form-label">Título</label>
-                            <input type="text" class="form-control" id="contentTitle" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="contentType" class="form-label">Tipo</label>
-                            <select class="form-select" id="contentType" required>
-                                <option value="movie">Película</option>
-                                <option value="tv">Serie</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="contentTmdbId" class="form-label">ID de TMDB</label>
-                            <input type="text" class="form-control" id="contentTmdbId" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="contentVideoUrl" class="form-label">URL de Video (opcional)</label>
-                            <input type="url" class="form-control" id="contentVideoUrl">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="saveContentBtn">Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal de cambio de rol -->
-    <div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title">Cambiar Rol</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="roleForm">
-                        <input type="hidden" id="roleUserId">
-                        <div class="mb-3">
-                            <label for="userRole" class="form-label">Rol</label>
-                            <select class="form-select" id="userRole">
-                                <option value="user">Usuario</option>
-                                <option value="admin">Administrador</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="saveRoleBtn">Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+
     <!-- Modal de confirmación de eliminación -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content bg-dark text-white">
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -448,17 +366,133 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Modal de edición de contenido -->
+    <div class="modal fade" id="editContentModal" tabindex="-1" aria-labelledby="editContentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="editContentModalLabel">Editar contenido</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editContentForm">
+                        <input type="hidden" id="editContentId">
+                        <div class="mb-3">
+                            <label for="editContentTitle" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="editContentTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editContentType" class="form-label">Tipo</label>
+                            <select class="form-select" id="editContentType" required>
+                                <option value="movie">Película</option>
+                                <option value="tv">Serie</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editContentTmdbId" class="form-label">ID de TMDB</label>
+                            <input type="text" class="form-control" id="editContentTmdbId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editContentVideoUrl" class="form-label">URL del video (opcional)</label>
+                            <input type="url" class="form-control" id="editContentVideoUrl">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmEditBtn">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de cambio de rol -->
+    <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="roleModalLabel">Cambiar rol de usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Cambiar el rol de <span id="roleUsername" class="fw-bold"></span>:</p>
+                    <input type="hidden" id="roleUserId">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="userRole" id="roleUser" value="user">
+                        <label class="form-check-label" for="roleUser">
+                            Usuario regular
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="userRole" id="roleAdmin" value="admin">
+                        <label class="form-check-label" for="roleAdmin">
+                            Administrador
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmRoleBtn">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de alerta -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="alertModalLabel">Mensaje</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alertContent" class="alert"></div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de login -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="loginModalLabel">Iniciar sesión como administrador</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-3 d-none" id="loginError"></div>
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginUsername" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="loginUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="loginBtn">Iniciar sesión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/api.js"></script>
-    <!-- Cargar los módulos en orden correcto -->
-    <script src="js/admin-core.js"></script>
-    <script src="js/admin-stats.js"></script>
-    <script src="js/admin-common.js"></script>
-    <script src="js/admin-users.js"></script>
-    <script src="js/admin-comments.js"></script>
-    <script src="js/admin-content.js"></script>
-    <script src="js/admin.js"></script>
+    <script src="/js/admin.js" type="module"></script>
+    <script src="/js/admin-core.js" type="module"></script>
+    <script src="/js/admin-stats.js" type="module"></script>
+    <script src="/js/admin-users.js" type="module"></script>
+    <script src="/js/admin-comments.js" type="module"></script>
+    <script src="/js/admin-content.js" type="module"></script>
+    <script src="/js/admin-common.js" type="module"></script>
 </body>
 </html>

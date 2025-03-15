@@ -1,70 +1,59 @@
 
-from flask import request, jsonify, g, current_app
+from flask import request, jsonify, g
 from functools import wraps
 import jwt
+from models import User
 
-# Decorador para rutas que requieren autenticación
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        auth_header = request.headers.get('Authorization')
         
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header.split('Bearer ')[1]
+        # Buscar token en encabezados
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            if auth_header.startswith('Bearer '):
+                token = auth_header.split(' ')[1]
         
         if not token:
-            return jsonify({'error': 'Token no proporcionado'}), 401
+            return jsonify({"error": "Token de autenticación requerido"}), 401
         
         try:
+            # Decodificar token
             payload = jwt.decode(
-                token, 
-                current_app.config['SECRET_KEY'], 
+                token,
+                current_app.config.get('SECRET_KEY'),
                 algorithms=['HS256']
             )
-            g.user_id = payload.get('user_id')
-            g.username = payload.get('username')
-            g.role = payload.get('role', 'user')
-        except jwt.ExpiredSignatureError:
-            return jsonify({'error': 'Token expirado'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'error': 'Token inválido'}), 401
             
+            # Guardar información del usuario en el contexto global de Flask
+            g.user_id = payload['user_id']
+            g.username = payload['username']
+            g.role = payload['role']
+            
+        except Exception as e:
+            return jsonify({"error": "Token inválido o expirado", "details": str(e)}), 401
+        
         return f(*args, **kwargs)
+    
     return decorated
 
-# Decorador para rutas que requieren rol de administrador
 def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Primero verificamos que el usuario esté autenticado
-        token = None
-        auth_header = request.headers.get('Authorization')
+        token_result = token_required(lambda: None)()
         
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header.split('Bearer ')[1]
+        # Si hay un error en la validación del token, retornarlo
+        if isinstance(token_result, tuple) and token_result[1] != 200:
+            return token_result
         
-        if not token:
-            return jsonify({'error': 'Token no proporcionado'}), 401
+        # Verificar si el usuario es administrador
+        if g.role != 'admin':
+            return jsonify({"error": "Se requieren privilegios de administrador"}), 403
         
-        try:
-            payload = jwt.decode(
-                token, 
-                current_app.config['SECRET_KEY'], 
-                algorithms=['HS256']
-            )
-            g.user_id = payload.get('user_id')
-            g.username = payload.get('username')
-            g.role = payload.get('role', 'user')
-            
-            # Verificar si el usuario es administrador
-            if g.role != 'admin':
-                return jsonify({'error': 'Acceso denegado: se requiere rol de administrador'}), 403
-                
-        except jwt.ExpiredSignatureError:
-            return jsonify({'error': 'Token expirado'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'error': 'Token inválido'}), 401
-            
         return f(*args, **kwargs)
+    
     return decorated
+
+# Importaciones que se necesitan dentro de las funciones
+from flask import current_app
